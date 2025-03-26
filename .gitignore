@@ -11,7 +11,6 @@
 /inference_results_ignore/
 
 # Any other generated output directories
-/inference_results/
 /logs/
 /hp_search/
 
