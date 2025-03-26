@@ -1,0 +1,121 @@
+# 설치 가이드
+
+## 1. 환경 설정
+
+프로젝트에 필요한 환경을 설정하는 방법에 대한 가이드입니다.
+
+### Python 및 CUDA 설정
+
+이 프로젝트는 다음 환경에서 테스트되었습니다:
+- Python 3.10
+- PyTorch 2.1.0
+- CUDA 12.1
+
+### conda 환경 생성 (권장)
+
+```bash
+# 새 conda 환경 생성
+conda create -n discogan python=3.10
+conda activate discogan
+
+# PyTorch 설치 (CUDA 12.1 지원)
+# conda install pytorch=2.1.0 torchvision=0.16.0 torchaudio=2.1.0 pytorch-cuda=12.1 -c pytorch -c nvidia
+# 한번에 설치하려고하면 오류가 나니 나눠서 설치할 것
+conda install pytorch=2.1.0 torchvision=0.16.0 torchaudio=2.1.0 -c pytorch
+conda install pytorch-cuda=12.1 -c nvidia
+
+# 기타 필요한 패키지 설치
+pip install -r requirements.txt
+```
+
+### pip로 설치 (대안)
+
+```bash
+# 가상 환경 생성
+python -m venv discogan_env
+source discogan_env/bin/activate  # Linux/Mac
+# 또는
+discogan_env\Scripts\activate  # Windows
+
+# PyTorch 설치 (CUDA 12.1 지원)
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+# 기타 필요한 패키지 설치
+pip install -r requirements.txt
+```
+
+## 2. 데이터셋 준비
+
+프로젝트의, `datasets` 디렉토리 구조가 다음과 같이 구성되어야 합니다:
+
+```
+datasets/
+  ├── celebA/
+  ├── edges2handbags/
+  ├── edges2shoes/
+  ├── facescrub/
+  ├── rendered_chairs/
+  ├── PublicMM1/05_renderings/
+  └── data/cars/
+```
+
+각 데이터셋은 다음 웹사이트에서 다운로드할 수 있습니다:
+- CelebA: https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html
+- Edges2Handbags: https://www.kaggle.com/datasets/vikramtiwari/pix2pix-dataset
+- Edges2Shoes: https://www.kaggle.com/datasets/vikramtiwari/pix2pix-dataset
+- Facescrub: http://vintage.winklerbros.net/facescrub.html
+- Rendered Chairs: https://www.di.ens.fr/willow/research/seeing3Dchairs
+- Cars: https://www.cs.cmu.edu/~akar/data.htm
+
+## 3. 학습 실행
+
+### 기본 이미지 변환 실행
+
+```bash
+python image_translation.py --task_name=edges2shoes --model_arch=discogan --device=cuda --batch_size=64 --epochs=20
+```
+
+### 각도 페어링 실행
+
+```bash
+python angle_pairing.py --task_name=car2car --model_arch=discogan --device=cuda --batch_size=64 --epochs=10
+```
+
+### 중요 매개변수
+
+- `--task_name`: 사용할 데이터셋/작업 (예: 'edges2shoes', 'car2car', 'celebA')
+- `--model_arch`: 사용할 모델 구조 ('discogan', 'recongan', 'gan')
+- `--device`: 사용할 디바이스 ('cuda', 'cpu')
+- `--batch_size`: 배치 크기
+- `--epochs`: 학습할 에포크 수
+- `--learning_rate`: 학습률
+- `--image_size`: 이미지 크기 (기본값: 64)
+
+CelebA 특정 매개변수:
+- `--style_A`: CelebA 첫 번째 스타일 속성 (예: 'Male')
+- `--style_B`: CelebA 두 번째 스타일 속성 (예: 'Smiling')
+
+더 많은 옵션은 각 스크립트의 `parse_args()` 함수에서 확인할 수 있습니다.
+
+
+# Requirements.txt
+
+# 기본 패키지
+numpy>=1.23.5
+pandas>=1.5.3
+matplotlib>=3.7.1
+Pillow>=9.4.0
+scipy>=1.10.1
+tqdm>=4.65.0
+ipython>=8.10.0
+
+# PyTorch (pip에서 설치할 경우)
+# torch>=2.1.0
+# torchvision>=0.16.0
+# torchaudio>=2.1.0
+
+# 이미지 처리
+opencv-python>=4.7.0.72
+
+# 유틸리티
+pyyaml>=6.0
